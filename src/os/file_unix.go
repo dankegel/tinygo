@@ -22,3 +22,11 @@ func Pipe() (r *File, w *File, err error) {
 	}
 	return
 }
+
+func tempDir() string {
+	dir := Getenv("TMPDIR")
+	if dir == "" {
+		dir = "/tmp"
+	}
+	return dir
+}
