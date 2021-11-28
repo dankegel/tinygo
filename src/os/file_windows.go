@@ -44,3 +44,21 @@ func tempDir() string {
 		return string(utf16.Decode(b[:n]))
 	}
 }
+
+// isWindowsNulName reports whether name is os.DevNull ('NUL') on Windows.
+// True is returned if name is 'NUL' whatever the case.
+func isWindowsNulName(name string) bool {
+	if len(name) != 3 {
+		return false
+	}
+	if name[0] != 'n' && name[0] != 'N' {
+		return false
+	}
+	if name[1] != 'u' && name[1] != 'U' {
+		return false
+	}
+	if name[2] != 'l' && name[2] != 'L' {
+		return false
+	}
+	return true
+}

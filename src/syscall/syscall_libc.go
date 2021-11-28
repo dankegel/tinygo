@@ -68,6 +68,52 @@ func Rmdir(path string) (err error) {
 	return
 }
 
+type Timespec struct {
+	Sec  int64
+	Nsec int64
+}
+
+type Stat_t struct {
+	Dev           int32
+	Mode          uint16
+	Nlink         uint16
+	Ino           uint64
+	Uid           uint32
+	Gid           uint32
+	Rdev          int32
+	Pad_cgo_0     [4]byte
+	Atimespec     Timespec
+	Mtimespec     Timespec
+	Ctimespec     Timespec
+	Birthtimespec Timespec
+	Size          int64
+	Blocks        int64
+	Blksize       int32
+	Flags         uint32
+	Gen           uint32
+	Lspare        int32
+	Qspare        [2]int64
+}
+
+func Stat(path string, p *Stat_t) (err error) {
+	data := cstring(path)
+	n := libc_stat(&data[0], unsafe.Pointer(p))
+
+	if n < 0 {
+		err = getErrno()
+	}
+	return
+}
+
+func Lstat(path string, p *Stat_t) (err error) {
+	data := cstring(path)
+	n := libc_lstat(&data[0], unsafe.Pointer(p))
+	if n < 0 {
+		err = getErrno()
+	}
+	return
+}
+
 func Unlink(path string) (err error) {
 	data := cstring(path)
 	fail := int(libc_unlink(&data[0]))
@@ -192,6 +238,17 @@ func libc_mkdir(pathname *byte, mode uint32) int32
 // int rmdir(const char *pathname);
 //export rmdir
 func libc_rmdir(pathname *byte) int32
+
+// The odd $INODE64 suffix is an Apple compatibility feature, see https://assert.cc/posts/darwin_use_64_bit_inode_vs_ctypes/
+// Without it, you get the old, smaller struct stat from mac os 10.2 or so.
+
+// int stat(const char *path, struct stat * buf);
+//export stat$INODE64
+func libc_stat(pathname *byte, ptr unsafe.Pointer) int32
+
+// int lstat(const char *path, struct stat * buf);
+//export lstat$INODE64
+func libc_lstat(pathname *byte, ptr unsafe.Pointer) int32
 
 // int unlink(const char *pathname);
 //export unlink
