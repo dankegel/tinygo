@@ -269,6 +269,8 @@ TEST_PACKAGES_FAST = \
 	html \
 	internal/itoa \
 	internal/profile \
+	io/fs \
+	io/ioutil \
 	math \
 	math/cmplx \
 	net \
